@@ -7,10 +7,12 @@ client = TestClient(app)
 
 
 @pytest.mark.parametrize('test_order', ['banana', 'apple', 'pear'])
-def test_post_order(test_order):
+def test_post_order(test_order, mocker):
+    storage = mocker.patch('app.routes.order.storage')
     response = client.post(
         '/order',
         params={'order': test_order}
     )
+    assert storage.create_file.call_count == 1
     assert response.status_code == 200
-    assert response.json() == {'order': test_order}
+    assert response.json() == {'Received order': test_order}
