@@ -6,7 +6,7 @@ from typing import Dict
 
 from fastapi import APIRouter
 
-from app.routes.storage_module import Storage
+from app.routers.storage_module import Storage
 
 logger = logging.getLogger(__file__)
 router = APIRouter(tags=['income'])

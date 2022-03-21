@@ -8,7 +8,7 @@ client = TestClient(app)
 
 @pytest.mark.parametrize('test_order', ['banana', 'apple', 'pear'])
 def test_post_order(test_order, mocker):
-    storage = mocker.patch('app.routes.order.storage')
+    storage = mocker.patch('app.routers.order.storage')
     response = client.post(
         '/order',
         params={'order': test_order}
