@@ -13,6 +13,6 @@ def test_post_order(test_order, mocker):
         '/order',
         params={'order': test_order}
     )
-    assert storage.create_file.call_count == 1
+    assert storage.ingest.call_count == 1
     assert response.status_code == 200
     assert response.json() == {'Received order': test_order}

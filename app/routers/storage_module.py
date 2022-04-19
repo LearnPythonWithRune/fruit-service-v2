@@ -1,51 +1,32 @@
-import json
+from datetime import datetime
 
-import requests
+import mysql.connector  # type: ignore
 
 
 class Storage:
-    def __init__(self, url):
-        self.url = url
+    def __init__(self, host: str):
+        self.host = host
 
-    def create_file(self, filename: str, file_data: str):
-        response = requests.post(
-            url=f'{self.url}/create_file',
-            params={
-                'filename': filename,
-                'file_data': file_data
-            }
+    def _setup_db(self):
+        self.mydb = mysql.connector.connect(
+            host=self.host,
+            user="root",
+            password="password"
         )
-        return response.status_code
 
-    def delete_file(self, filename):
-        response = requests.post(
-            url=f'{self.url}/delete_file',
-            params={
-                'filename': filename,
-            }
-        )
-        return response.status_code
+        self.cur = self.mydb.cursor()
+        self.cur.execute("USE DB")
 
-    def download_file(self, filename: str):
-        response = requests.get(
-            url=f'{self.url}/download_file',
-            params={
-                'filename': filename,
-            }
-        )
-        return response.content
+    def _query_db(self, sql_stmt: str):
+        self._setup_db()
+        self.cur.execute(sql_stmt)
+        self.mydb.commit()
+        self._close()
 
-    def list_files(self):
-        response = requests.get(
-            url=f'{self.url}/list_files',
-        )
-        return json.loads(response.content)[0]['files']
+    def _close(self):
+        self.cur.close()
+        self.mydb.close()
 
-    def upload_file(self, f):
-        response = requests.post(
-            url=f'{self.url}/upload_file',
-            params={
-                'file': f,
-            }
-        )
-        return response.status_code
+    def ingest(self, ingest_value: str):
+        sql_stmt = f"INSERT INTO ingress(ingest_time, ingest_value) VALUES('{datetime.utcnow()}', '{ingest_value}')"
+        self._query_db(sql_stmt)

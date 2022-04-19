@@ -12,13 +12,12 @@ logger = logging.getLogger(__file__)
 router = APIRouter(tags=['income'])
 
 
-storage = Storage(os.getenv('STORAGE_HOST', 'http://localhost:8001'))
+storage = Storage(os.getenv('STORAGE_HOST', 'localhost'))
 
 
 @router.post('/order', status_code=HTTPStatus.OK)
 async def order_call(order: str) -> Dict[str, str]:
     logger.info(f'Incoming order: {order}')
-    filename = f'order-{datetime.utcnow().strftime("%Y-%m-%d--%H-%M-%S--%f")}--UTC.txt'
-    storage.create_file(filename, order)
-    logger.info(f'Stored file: {filename}')
+    storage.ingest(order)
+    logger.info(f'Ingested order: {order}')
     return {'Received order': order}
